@@ -1,0 +1,60 @@
+_schema-version: '1.0'
+repository: sriniv7654/capmrepo # This will be the base image name for all services
+tag: latest # This top-level tag will be overridden by module-specific tags
+
+before-all:
+  - npx cds build --production
+  - mkdir -p ui-resources/resources
+  - npm i --prefix app/admin-books
+  - npm run build --prefix app/admin-books
+  # zip filename should match the archiveName specified in ui5-deploy.yaml
+  - cp -f app/admin-books/dist/admin-books.zip ui-resources/resources/admin-books.zip
+  - npm i --prefix app/browse
+  - npm run build --prefix app/browse
+  # zip filename should match the archiveName specified in ui5-deploy.yaml
+  - cp -f app/browse/dist/browse.zip ui-resources/resources/browse.zip
+modules:
+  - name: nodejs-test-srv
+    build-parameters:
+      buildpack:
+        type: nodejs
+        builder: builder-jammy-base
+        path: gen/srv
+        env:
+          BP_NODE_RUN_SCRIPTS: ""
+    image: # Moved 'image' to be a direct child of the module, sibling to 'build-parameters'
+      repository: sriniv7654/capmrepo
+      tag: nodejs-test-srv-latest
+  - name: nodejs-test-hana-deployer
+    build-parameters:
+      buildpack:
+        type: nodejs
+        builder: builder-jammy-base
+        path: gen/db
+        env:
+          BP_NODE_RUN_SCRIPTS: ""
+    image: # Moved 'image' to be a direct child of the module, sibling to 'build-parameters'
+      repository: sriniv7654/capmrepo
+      tag: nodejs-test-hana-deployer-latest
+  - name: nodejs-test-approuter
+    build-parameters:
+      buildpack:
+        type: nodejs
+        builder: builder-jammy-base
+        path: app/router
+        env:
+          BP_NODE_RUN_SCRIPTS: ""
+    image: # Moved 'image' to be a direct child of the module, sibling to 'build-parameters'
+      repository: sriniv7654/capmrepo
+      tag: nodejs-test-approuter-latest
+  - name: nodejs-test-html5-deployer
+    build-parameters:
+      buildpack:
+        type: nodejs
+        builder: builder-jammy-base
+        path: ui-resources
+        env:
+          BP_NODE_RUN_SCRIPTS: ""
+    image: # Moved 'image' to be a direct child of the module, sibling to 'build-parameters'
+      repository: sriniv7654/capmrepo
+      tag: nodejs-test-html5-deployer-latest

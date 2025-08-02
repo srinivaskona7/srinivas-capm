@@ -1,0 +1,9 @@
+{
+    "actions": [
+        {
+            "id": "openReadmeFile",
+            "actionType": "FILE",
+            "uri": "file:///Users/sr20536224wipro.com/Documents/scratch%20projects/nodejs-test/.gen/generation.log"
+        }
+    ]
+}
